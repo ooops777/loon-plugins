@@ -1,69 +1,105 @@
 /*
- * AlphaSquare Premium All-in-One Unlock
- * Developed for LOON
- *
- * 이 스크립트는 AlphaSquare 앱의 JSON 응답 본문을 수정하여
- * 모든 등급 제한을 제거하고 프리미엄 기능을 활성화합니다.
- *
- * [Script Logic]
- * 1. Sresponse.body를 JSON 객체로 파싱합니다.
- * 2. chartgame_review, chart_prediction 등의 특정 기능 플래그를 true로 설정합니다.
- * 3. 등급별 제한이 있는 모든 항목 (예: chartgame_stock_types, indicator_mining_stock_limit)의 값을
- * 'UNLIMITED' 또는 최고 등급(Premium)에 해당하는 값으로 변경합니다.
- * 4. 수정된 JSON 객체를 문자열로 다시 변환합니다.
- * 5. $done() 함수를 사용하여 수정된 응답을 반환합니다.
+ * ===============================================
+ * AlphaSquare 프리미엄 회원 권한 잠금 해제 스크립트
+ * 適用 대상: api.alphasquare.co.kr/user/v1/permissions
+ * 업데이트 날짜: 2025-08-16
+ * 버전: v3.0
+ * ===============================================
  */
 
-const body = $response.body;
-let obj = JSON.parse(body);
-
-// 1. 최고 등급 회원으로 설정
-if (obj.chartgame_review) {
-    obj.chartgame_review["alphasquare:premium"] = true;
-    obj.chartgame_review["alphasquare:pro"] = true;
-    obj.chartgame_review["alphasquare:standard"] = true;
-    obj.chartgame_review["alphasquare:basic"] = true;
-}
-
-// 2. 모든 기능 제한 해제 (Premium 등급 기준)
-const plans = ["alphasquare:basic", "alphasquare:standard", "alphasquare:pro", "alphasquare:premium"];
-
-for (const plan of plans) {
-    // 차트게임 기능
-    if (obj.chartgame_review) obj.chartgame_review[plan] = true;
-    if (obj.chartgame_stock_types) obj.chartgame_stock_types[plan] = "UNLIMITED";
-    if (obj.chartgame_freqs) obj.chartgame_freqs[plan] = "UNLIMITED";
-    if (obj.chartgame_candle_count) obj.chartgame_candle_count[plan] = 900;
-    if (obj.chartgame_free_step) obj.chartgame_free_step[plan] = 100;
-    if (obj.chartgame_account_limit) obj.chartgame_account_limit[plan] = 10;
-    if (obj.chartgame_pattern_filter) obj.chartgame_pattern_filter[plan] = "UNLIMITED";
-    if (obj.chartgame_free_reset_game_limit) obj.chartgame_free_reset_game_limit[plan] = 5;
-
-    // 인디케이터/분석 기능
-    if (obj.indicator_mining_stock_types) obj.indicator_mining_stock_types[plan] = "UNLIMITED";
-    if (obj.indicator_mining_stock_limit) obj.indicator_mining_stock_limit[plan] = 20;
-    if (obj.indicator_mining_signal_types) obj.indicator_mining_signal_types[plan] = ["BUY", "SELL"];
-    if (obj.indicator_analysis_config) obj.indicator_analysis_config[plan] = true;
-    if (obj.indicator_analysis_stock_type) obj.indicator_analysis_stock_type[plan] = "UNLIMITED";
-    if (obj.indicator_analysis_notification_limit) obj.indicator_analysis_notification_limit[plan] = 100;
-
+// 프리미엄 등급에 해당하는 모든 기능 및 값 정의
+const PREMIUM_PERMISSIONS = {
+    // 차트 게임(ChartGame)
+    chartgame_review: true,
+    chartgame_stock_types: "UNLIMITED",
+    chartgame_freqs: "UNLIMITED",
+    chartgame_candle_count: 900,
+    chartgame_free_step: 100,
+    chartgame_account_limit: 10,
+    chartgame_pattern_filter: "UNLIMITED",
+    chartgame_free_reset_game_limit: 5,
+    chartgame_indicator_roles: ["basic", "premium"],
+    chartgame_strategy_roles: ["basic", "premium"],
+    
+    // 트레이딩 및 분석
+    trading_note_count_limit: "UNLIMITED",
+    indicator_mining_strategy_roles: ["basic", "premium"],
+    indicator_mining_stock_types: "UNLIMITED",
+    indicator_mining_stock_limit: 20,
+    indicator_mining_signal_types: ["BUY", "SELL"],
+    indicator_analysis_config: true,
+    indicator_analysis_strategy_roles: ["basic", "premium"],
+    indicator_analysis_stock_type: "UNLIMITED",
+    indicator_analysis_notification_limit: 100,
+    
     // 차트 기능
-    if (obj.chart_types) obj.chart_types[plan] = "UNLIMITED";
-    if (obj.chart_indicator_limit) obj.chart_indicator_limit[plan] = "UNLIMITED";
-    if (obj.chart_compare_limit) obj.chart_compare_limit[plan] = 4;
-    if (obj.chart_prediction) obj.chart_prediction[plan] = true;
-    if (obj.multi_chart_limit) obj.multi_chart_limit[plan] = "UNLIMITED";
+    chart_types: "UNLIMITED",
+    chart_indicator_limit: "UNLIMITED",
+    chart_compare_limit: 4,
+    chart_prediction: true,
+    multi_chart_limit: "UNLIMITED",
+    chart_strategy_roles: ["basic", "premium"],
+    
+    // 관심종목 및 기타
+    watchlist_stock_limit: 100,
+    watchlist_limit: "UNLIMITED",
+    special_stock_big_factor: "UNLIMITED",
+    financial_limit: 40
+};
 
-    // 기타 기능
-    if (obj.trading_note_count_limit) obj.trading_note_count_limit[plan] = "UNLIMITED";
-    if (obj.watchlist_stock_limit) obj.watchlist_stock_limit[plan] = 100;
-    if (obj.watchlist_limit) obj.watchlist_limit[plan] = "UNLIMITED";
-    if (obj.special_stock_big_factor) obj.special_stock_big_factor[plan] = "UNLIMITED";
-    if (obj.financial_limit) obj.financial_limit[plan] = 40;
+// 메인 함수
+function main() {
+    try {
+        // 응답 본문 가져오기
+        const body = $response.body;
+        
+        // JSON 파싱 시도 (안정성 확보)
+        let obj = JSON.parse(body);
+
+        console.log("✅ AlphaSquare 권한 스크립트 실행 시작.");
+        
+        // 프리미엄 권한을 현재 응답에 덮어씌움
+        for (const key in PREMIUM_PERMISSIONS) {
+            if (obj.hasOwnProperty(key)) {
+                obj[key] = PREMIUM_PERMISSIONS[key];
+                console.log(`- ${key}: 권한을 ${JSON.stringify(PREMIUM_PERMISSIONS[key])}로 업데이트했습니다.`);
+            }
+        }
+        
+        console.log("✨ 모든 프리미엄 권한 업데이트 완료.");
+        
+        // 수정된 객체를 다시 문자열로 변환
+        const modifiedBody = JSON.stringify(obj);
+        
+        // 성공 알림 전송 (Loon/Quantumult X 등 지원)
+        if (typeof $notification !== 'undefined') {
+            $notification.post(
+                '🎉 AlphaSquare 프리미엄 활성화',
+                '모든 기능이 잠금 해제되었습니다.',
+                '차트게임, 무제한 인디케이터, AI 예측 등을 즐겨보세요.'
+            );
+        }
+        
+        // 최종 응답 반환
+        $done({ body: modifiedBody });
+
+    } catch (e) {
+        // 오류 처리
+        console.error(`❌ 스크립트 실행 중 오류 발생: ${e.message}`);
+        
+        // 오류 알림 전송
+        if (typeof $notification !== 'undefined') {
+            $notification.post(
+                'AlphaSquare 스크립트 오류',
+                '스크립트 실행에 실패했습니다.',
+                `오류 내용: ${e.message}`
+            );
+        }
+
+        // 원본 응답을 그대로 반환하여 앱이 멈추지 않도록 함
+        $done({});
+    }
 }
 
-// 수정된 객체를 다시 문자열로 변환하여 반환
-const modifiedBody = JSON.stringify(obj);
-
-// LOON에 수정된 본문 전달
-$done({ body: modifiedBody });
+// 스크립트 실행
+main();
