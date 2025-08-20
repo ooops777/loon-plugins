@@ -1,5 +1,5 @@
 // 스크립트 목적: API 응답을 수정하여 유료 멤버십 상태를 무조건 'PRO'로 변경하고,
-// 만료일을 넉넉한 미래 날짜로 설정합니다.
+// 특정 상품 ID를 부여한 후, 만료일을 넉넉한 미래 날짜로 설정합니다.
 
 // 1. API 응답 본문을 가져옵니다.
 let responseBody = $response.body;
@@ -8,10 +8,14 @@ try {
   // 2. 응답 본문을 JSON 객체로 변환합니다.
   let data = JSON.parse(responseBody);
   
-  // 3. 'subscription' 객체에 접근하여 'status'를 'PRO'로 강제 수정합니다.
-  data.subscription.status = "PRO";
+  // 3. 'subscription' 객체가 없으면 새로 생성합니다.
+  if (data.subscription === null) {
+    data.subscription = {};
+  }
   
-  // 4. 만료일을 넉넉한 미래 날짜로 설정하여 영구적인 멤버십처럼 보이게 합니다.
+  // 4. 'subscription' 객체에 접근하여 'status', 'productId', 'expiresAt' 등을 수정합니다.
+  data.subscription.status = "PRO";
+  data.subscription.productId = "ai.stocknow.subscription.pro.1month.001";
   data.subscription.expiresAt = "2099-12-31T23:59:59Z";
   
   // 5. (선택사항) 자동 갱신 여부를 'true'로 변경하여 지속성을 더합니다.
