@@ -15,7 +15,7 @@ try {
   data.subscription.expiresAt = "2099-12-31T23:59:59Z";
   
   // 5. (선택사항) 자동 갱신 여부를 'true'로 변경하여 지속성을 더합니다.
-  data.subscription.autoRenewal = true;
+  data.subscription.autoRenewal = false;
   
   // 6. 수정된 JSON 객체를 다시 문자열로 변환합니다.
   responseBody = JSON.stringify(data);
