@@ -11,8 +11,8 @@ if (url.includes("https://stocknow.ai/api/v1/feature-flags")) {
         obj.requireProSubscription = true;
         
         // 필요시 다른 Pro 관련 설정도 변경 가능
-        // obj.displayEarningsReportUnsupportBadge = true;
-        // obj.requireProSubscriptionForTTS = true;
+        obj.displayEarningsReportUnsupportBadge = true;
+        obj.requireProSubscriptionForTTS = true;
         
         // 수정된 JSON 객체를 다시 문자열로 변환합니다
         body = JSON.stringify(obj);
