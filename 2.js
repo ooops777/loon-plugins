@@ -1,34 +1,41 @@
-// 스크립트 목적: API 응답에서 user_id와 product_id가 null인 경우 특정 값으로 변경합니다.
-
-// 1. API 응답 본문을 가져옵니다.
+// 쇼핑몰 사용자 정보 변조 스크립트 (VIP 등급)
 let responseBody = $response.body;
 
 try {
-  // 2. 응답 본문을 JSON 객체로 변환합니다.
   let data = JSON.parse(responseBody);
   
-  // 3. user_id가 null이거나 없으면 설정합니다.
-  if (data.user_id === null || data.user_id === undefined) {
-    data.user_id = "16677"; // 원하는 사용자 ID로 변경
+  // 마일리지 정보 변조 (VIP 등급에 맞게)
+  if (data.Mileage) {
+    data.Mileage.avail_mileage = "500000.00"; // VIP 등급에 적합한 마일리지
+    data.Mileage.total_mileage = 500000;
   }
   
-  // 4. product_id가 null이거나 없으면 설정합니다.
-  if (data.product_id === null || data.product_id === undefined) {
-    data.product_id = "ai.stocknow.subscription.pro.1month.001"; // 원하는 상품 ID로 변경
+  // 예치금 정보 변조
+  if (data.Deposit) {
+    data.Deposit.all_deposit = 100000; // VIP 등급에 적합한 예치금
+    data.Deposit.total_deposit = 100000;
   }
   
-  // 5. 만약 응답이 중첩된 구조라면 (예: data.result.user_id), 경로를 수정해야 합니다.
-  // if (data.result && (data.result.user_id === null || data.result.user_id === undefined)) {
-  //   data.result.user_id = "16677";
-  // }
+  // 회원 등급 및 혜택 변조 (VIP 등급으로)
+  if (data.Benefit) {
+    // VIP 등급 이미지로 변경 (실제 경로는 해당 쇼핑몰에 맞게 수정 필요)
+    data.Benefit.group_image = "//m.ndns.shop/web/upload/mg_img_VIP.png";
+    data.Benefit.group_icon = "//m.ndns.shop/web/bbs_member_icon/member/vip_icon.png";
+    
+    // VIP 등급에 적합한 할인 혜택 추가
+    data.Benefit.use_dc = "10% 추가할인";
+    data.Benefit.mobile_use_dc = "10% 추가할인";
+    data.Benefit.dc_price = "10000원";
+    data.Benefit.dc_max_percent = "10";
+    
+    // 추가 VIP 혜택 설정
+    data.Benefit.ship_free_message = "VIP 무료배송";
+    data.Benefit.dc_min_price = "0원 이상"; // 무조건 할인 적용
+  }
   
-  // 6. 수정된 JSON 객체를 다시 문자열로 변환합니다.
   responseBody = JSON.stringify(data);
-
 } catch (e) {
-  // 7. JSON 파싱 또는 수정 중 오류가 발생하면 원래 응답을 그대로 반환합니다.
-  console.log("JSON 처리 중 오류 발생:", e);
+  console.log("VIP 등급 변조 중 오류 발생:", e);
 }
 
-// 8. 수정이 완료된 최종 응답 본문을 반환하고 스크립트를 종료합니다.
-$done({ body: responseBody });
+$done({body: responseBody});
