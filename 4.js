@@ -38,7 +38,7 @@ try {
     };
   } else {
     // 정상 응답인 경우 제한 해제
-    data.isRestricted = false;
+    data.isRestricted = true;
     
     // 제목과 내용이 비어있는 경우 더미 데이터로 채우기
     if (!data.title || data.title === "") data.title = "중요 시장 뉴스";
