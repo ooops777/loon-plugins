@@ -1,4 +1,4 @@
-// 스크립트 목적: breaking-news API 응답을 수정하여 모든 뉴스 항목의 제한을 해제합니다.
+// 스크립트 목적: 개별 breaking-news 상세 API 응답을 수정하여 뉴스 항목의 제한을 해제합니다.
 let responseBody = $response.body;
 
 try {
@@ -6,29 +6,44 @@ try {
   
   // 400 오류 응답인지 확인
   if (data.error && data.error.includes("not found")) {
-    // 오류 응답을 빈 목록으로 대체
-    data = {
-      items: [],
-      unreadableCount: 0,
-      latestId: 0,
-      latestCreatedAt: new Date().toISOString()
-    };
-  }
-  
-  // items 배열이 있는 경우 처리
-  if (data.items && Array.isArray(data.items)) {
-    // 모든 항목의 제한 해제 및 내용 복원
-    data.items.forEach(item => {
-      item.isRestricted = false;
-      
-      // 제목과 내용이 비어있는 경우 더미 데이터로 채우기
-      if (!item.title || item.title === "") item.title = "중요 시장 뉴스";
-      if (!item.content || item.content === "") item.content = "이 뉴스는 프리미엄 구독자에게 제공되는 중요 뉴스입니다.";
-      if (!item.aiContent || item.aiContent === "") item.aiContent = "AI 분석: 이 뉴스는 시장에 중요한 영향을 미칠 수 있는 주요 발표입니다.";
-    });
+    // 오류 응답을 가짜 뉴스 항목으로 대체
+    // URL에서 ID 추출 (예: https://stocknow.ai/api/breaking-news/18552)
+    let url = $request.url;
+    let newsId = url.match(/breaking-news\/(\d+)/)[1];
     
-    // 읽을 수 없는 항목 수를 0으로 설정
-    data.unreadableCount = 0;
+    data = {
+      id: parseInt(newsId),
+      title: "중요 시장 뉴스",
+      content: "이 뉴스는 프리미엄 구독자에게 제공되는 중요 뉴스입니다.",
+      originalTitle: "Important Market News",
+      originalContent: "This news is provided to premium subscribers.",
+      aiContent: "AI 분석: 이 뉴스는 시장에 중요한 영향을 미칠 수 있는 주요 발표입니다.",
+      reference: "StockNow",
+      source: "StockNow",
+      publishedAt: new Date().toISOString(),
+      isImportant: true,
+      isTrending: true,
+      categoryId: 1,
+      categoryName: "시장뉴스",
+      actions: {
+        fire: {
+          count: 0,
+          enabled: false
+        }
+      },
+      tickers: null,
+      isScraped: false,
+      scrapCount: 0,
+      isRestricted: false
+    };
+  } else {
+    // 정상 응답인 경우 제한 해제
+    data.isRestricted = false;
+    
+    // 제목과 내용이 비어있는 경우 더미 데이터로 채우기
+    if (!data.title || data.title === "") data.title = "중요 시장 뉴스";
+    if (!data.content || data.content === "") data.content = "이 뉴스는 프리미엄 구독자에게 제공되는 중요 뉴스입니다.";
+    if (!data.aiContent || data.aiContent === "") data.aiContent = "AI 분석: 이 뉴스는 시장에 중요한 영향을 미칠 수 있는 주요 발표입니다.";
   }
 
   responseBody = JSON.stringify(data);
