@@ -1,39 +1,56 @@
 [Script]
-# 알파스�어 특정 지표들만 활성화
+# 알파스퀘어 차트 게임 지표 전체 활성화
+# 이름: Alphasquare Chart Game Indicators Activator
+# 설명: 차트 게임의 모든 지표를 선택된 상태로 설정하고 거래량 필요 여부 활성화
 # 유형: http-response
-# 패턴: ^https?:\/\/api\.alphasquare\.co\.kr\/indicator-analysis\/v2\/configs
+# 활성: true
+# 패턴: ^https?:\/\/api\.alphasquare\.co\.kr\/.*(chartgame|indicator).*
 
 try {
-    let obj = JSON.parse($response.body);
+    let body = $response.body;
+    let obj = JSON.parse(body);
     
-    // 활성화할 지표 이름 목록 (필요에 따라 수정)
-    const targetIndicators = [
-        "전태룡직장인",
-        "전태룡급등",
-    ];
+    console.log("알파스퀘어 차트 게임 지표 활성화 시작");
     
-    function activateSpecificIndicators(data) {
-        if (Array.isArray(data)) {
-            data.forEach(item => {
-                if (item && item.indicator && targetIndicators.includes(item.indicator)) {
-                    item.is_selected = true;
-                    item.volume_required = true;
-                    console.log(`활성화: ${item.indicator}`);
-                }
-            });
-        } else if (typeof data === 'object') {
-            for (let key in data) {
-                if (Array.isArray(data[key])) {
-                    activateSpecificIndicators(data[key]);
-                }
+    // configs 배열 내의 모든 지표 수정
+    if (obj.configs && Array.isArray(obj.configs)) {
+        let modifiedCount = 0;
+        
+        obj.configs.forEach(indicator => {
+            // is_selected를 true로 설정
+            if (indicator.is_selected !== undefined) {
+                indicator.is_selected = true;
             }
-        }
+            
+            // volume_required를 true로 설정
+            if (indicator.volume_required !== undefined) {
+                indicator.volume_required = true;
+            }
+            
+            modifiedCount++;
+            console.log(`지표 활성화: ${indicator.indicator || indicator.label}`);
+        });
+        
+        console.log(`✅ 총 ${modifiedCount}개 지표가 활성화되었습니다`);
     }
     
-    activateSpecificIndicators(obj);
-    $done({body: JSON.stringify(obj)});
+    // 기본 게임 설정도 업그레이드 (선택사항)
+    if (obj.chartgame_free_step !== undefined) {
+        obj.chartgame_free_step = 100; // 무료 스텝 증가
+    }
+    
+    if (obj.chartgame_candle_count !== undefined) {
+        obj.chartgame_candle_count = 900; // 캔들 수 증가
+    }
+    
+    if (obj.chartgame_account_limit !== undefined) {
+        obj.chartgame_account_limit = 10; // 계정 제한 증가
+    }
+    
+    body = JSON.stringify(obj);
+    $done({body});
     
 } catch (e) {
-    console.log("지표 활성화 오류: " + e);
+    console.log("차트 게임 지표 활성화 오류: " + e);
     $done({});
 }
