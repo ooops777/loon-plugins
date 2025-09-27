@@ -5,7 +5,7 @@
     // 1. 설정 값 상수화 (쉽게 수정할 수 있도록)
     const CONFIG = {
         SUBSCRIPTION_STATUS: "PRO",
-        PRODUCT_ID: "ai.stocknow.subscription.pro.1month.012",
+        PRODUCT_ID: "ai.stocknow.subscription.pro.1month.001",
         EXPIRATION_DATE: "2099-12-31T23:59:59Z",
         AUTO_RENEWAL: false,
         PLATFORM: "APPLE",
