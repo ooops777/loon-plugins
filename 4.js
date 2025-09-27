@@ -16,7 +16,7 @@ try {
       data.subscription = {};
     }
     data.subscription.status = "PRO";
-    data.subscription.productId = "ai.stocknow.subscription.pro.1month.012";
+    data.subscription.productId = "ai.stocknow.subscription.pro.1month.001";
     data.subscription.expiresAt = "2099-12-31T23:59:59Z";
     data.subscription.autoRenewal = false;
     data.subscription.platform = "APPLE";
