@@ -1,11 +1,15 @@
 /*
- * Loon 스크립트: 크레딧 차감 우회 (V6)
- * 역할: 잠금 해제 API 요청 시 강제 성공 응답 반환
+ * Loon 脚本: SPARK_INSIGHT 权限强制解锁 (V7)
+ * 作用: 将 Spark Insight 或其他内容的解锁状态从 false 强制改为 true。
  */
 $done({
     body: JSON.stringify({
-        "success": true,
-        "message": "PRO 구독으로\n데일리 인사이트 내용이 잠금 해제되었습니다.",
-        "errorCode": null
+        "unlockCost": null,
+        "unlocked": true,
+        "transaction": "LoonBypass",
+        "expiresAt": "2099-12-31T23:59:59Z",
+        "key": $request.url.match(/key=(\d+)/) ? $request.url.match(/key=(\d+)/)[1] : "Bypass_Key", // 尝试从 URL 中提取 key
+        "type": "SPARK_INSIGHT", // 保持类型不变
+        "unlockedAt": "2099-12-31T23:59:59Z"
     })
 });
