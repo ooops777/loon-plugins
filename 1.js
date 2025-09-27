@@ -15,7 +15,7 @@ try {
   
   // 4. 'subscription' 객체에 접근하여 'status', 'productId', 'expiresAt' 등을 설정합니다.
   data.subscription.status = "PRO";
-  data.subscription.productId = "ai.stocknow.subscription.pro.1month.012";
+  data.subscription.productId = "ai.stocknow.subscription.pro.1month.001";
   data.subscription.expiresAt = "2099-12-31T23:59:59Z";
   data.subscription.autoRenewal = false;
   data.subscription.platform = "APPLE";
