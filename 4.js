@@ -3,26 +3,12 @@ let responseBody = $response.body;
 try {
   let data = JSON.parse(responseBody);
   
-  // 잠금 해제 상태는 유지하고 만료일만 null로 설정
+  // 모든 경우 잠금 해제
   data.unlocked = true;
+  data.unlockedAt = "2099-12-31T23:59:59Z"; // 종료 시점은 필요에 따라 조정 가능
   data.expiresAt = null;
-  
-  // 다른 관련 필드도 유지 또는 초기화
-  if (!data.unlockedAt) {
-    data.unlockedAt = "2099-12-31T23:59:59Z";  // 기존처럼 해제 시점 지정 가능
-  }
   data.transaction = null;
   data.unlockCost = null;
-  
-  // 구독 정보 추가 (선택사항)
-  if (!data.subscription) {
-    data.subscription = {};
-  }
-  data.subscription.status = "PRO";
-  data.subscription.productId = "ai.stocknow.subscription.pro.1month.001";
-  data.subscription.expiresAt = "2099-12-31T23:59:59Z";
-  data.subscription.autoRenewal = false;
-  data.subscription.platform = "APPLE";
 
   responseBody = JSON.stringify(data);
 } catch (e) {
