@@ -3,14 +3,18 @@ let responseBody = $response.body;
 try {
   let data = JSON.parse(responseBody);
   
-  // 잠금 해제 시점과 만료일을 모두 null로 설정
+  // 잠금 해제 상태는 유지하고 만료일만 null로 설정
   data.unlocked = true;
-  data.unlockedAt = null;
   data.expiresAt = null;
+  
+  // 다른 관련 필드도 유지 또는 초기화
+  if (!data.unlockedAt) {
+    data.unlockedAt = "2099-12-31T23:59:59Z";  // 기존처럼 해제 시점 지정 가능
+  }
   data.transaction = null;
   data.unlockCost = null;
   
-  // 구독 정보도 프로 상태로 유지
+  // 구독 정보 추가 (선택사항)
   if (!data.subscription) {
     data.subscription = {};
   }
